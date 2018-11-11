@@ -3,7 +3,7 @@ mcf2html
 
 Python script to view CEWE's "My Cewe Fotobook" (MCF) format as HTML.
 
-Tested on a CEWE A4 book.
+Tested on a CEWE A4 book with version 6.3.6 of CEWE's interactive photobook creator.
 
 The script `mcf2json.py` reads an MCF file and outputs a JSON fragment
 which must be inserted in the bottom of `view.html`.
