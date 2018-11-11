@@ -1,0 +1,76 @@
+<!-- SPDX-License-Identifier: GPL-2.0-or-later -->
+<!DOCTYPE html>
+<meta charset="utf8">
+<div id="page_number"></div>
+<div id="page"></div>
+<style>
+#page { position: absolute; top: 0; left: 0; width: 70vw; height: 70vw; overflow: hidden; }
+</style>
+<script>
+var pages = [];
+var current_page = 0;
+var page_el = document.getElementById('page');
+
+function fix_path(p) {
+	// This function is an opportunity to rewrite paths to images.
+	// p = p.replace(/.*DSC(.*)\.jpg/, 'Pics/DSC$1.JPG');
+	return p;
+}
+
+function show_page(page_idx) {
+	document.getElementById('page_number').innerHTML = 'Page ' + (page_idx+1) + '/' + pages.length;
+	page_el.innerHTML = '';
+	var page = pages[page_idx];
+	for (var i = 0; i < page.images.length; ++i) {
+		var im = page.images[i];
+		var el = document.createElement('div');
+		el.style.overflow = 'hidden';
+		el.style.position = 'absolute';
+		el.style.top = (im.top / page.page_width) * 100 + '%';
+		el.style.left = (im.left / page.page_width) * 100 + '%';
+		el.style.height = (im.height / page.page_width) * 100 + '%';
+		el.style.width = (im.width / page.page_width) * 100 + '%';
+		el.style.background = '#ccc';
+		if (im.rotation) el.style.transform = 'rotate(' + im.rotation + 'deg)';
+		var im_el = document.createElement('img');
+		im_el.src = fix_path(im.path);
+		if (im.crop_top) {
+			// Note, we divide by width, because margin-top in
+			// percent is relative to container width in CSS
+			im_el.style.marginTop = (im.crop_top * im.scale) / im.width * 100 + '%';
+			im_el.style.width = '100%';
+		} else if (im.crop_left) {
+			im_el.style.marginLeft = (im.crop_left * im.scale) / im.width * 100 + '%';
+			im_el.style.height = '100%';
+		}
+		el.appendChild(im_el);
+		page_el.appendChild(el);
+	}
+}
+
+function on_keydown(ev) {
+	if (ev.key == 'ArrowLeft') {
+		current_page += pages.length - 1;
+	} else if (ev.key == 'ArrowRight') {
+		current_page += 1;
+	} else {
+		return;
+	}
+	ev.preventDefault();
+	current_page %= pages.length;
+	show_page(current_page);
+}
+
+function init(input_pages) {
+	for (var i = 0; i < input_pages.length; ++i) {
+		if (input_pages[i].images.length > 0) pages.push(input_pages[i]);
+	}
+	show_page(0);
+	document.body.addEventListener('keydown', on_keydown, false);
+}
+</script>
+<script>
+init(
+	// INSERT OUTPUT FROM mcf2json.py HERE
+);
+</script>
